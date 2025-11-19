@@ -1,1 +1,92 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <title>Pemilihan Ketua OSIS</title>
+  <style>
+    body { font-family: Arial, sans-serif; background: #f1f1f1; }
+    .container { max-width: 600px; margin: 40px auto; background: #fff; padding: 30px; border-radius: 10px; box-shadow: 0 2px 5px #ccc; }
+    h1 { text-align: center; margin-bottom: 30px; }
+    .kandidat-list { display: flex; flex-wrap: wrap; gap: 20px; margin-bottom: 30px; justify-content: center;}
+    .kandidat { border: 2px solid #09b; border-radius: 10px; padding: 18px 22px; text-align: center; background: #eaf6fb; width: 155px;}
+    .kandidat h2 { margin-top: 0; }
+    .kandidat button { background: #09b; color: #fff; border: none; padding: 8px 20px; border-radius: 5px; cursor: pointer; font-size: 1em; }
+    .kandidat button:disabled { background: #bbb; cursor: not-allowed; }
+    .result { background: #def; padding: 18px; border-radius: 7px; margin-top: 20px; }
+    .result h3 { margin-top: 0; }
+    .votes-bar {
+      display: flex; gap: 8px; margin-top: 10px;
+    }
+    .bar {
+      background: #09b; height: 18px; border-radius:5px; transition: width .5s;
+    }
+    .bar0 { background: #08f;}
+    .bar1 { background: #0c8;}
+    .bar2 { background: #f80;}
+    .votes-label { font-size: 0.95em; margin-bottom: 5px; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Pemilihan Ketua OSIS</h1>
+    <div class="kandidat-list" id="kandidatList">
+      <!-- Kandidat akan diisi lewat JavaScript -->
+    </div>
+    <div id="result" class="result" style="display:none"></div>
+  </div>
+  <script>
+    // Data kandidat
+    const kandidat = [
+      { nama: "Aulia Rahman", votes: 0 },
+      { nama: "Budi Santoso", votes: 0 },
+      { nama: "Citra Dewi", votes: 0 }
+    ];
 
+    // Render kandidat
+    const kandidatList = document.getElementById("kandidatList");
+    function renderKandidat() {
+      kandidatList.innerHTML = "";
+      kandidat.forEach((k, i) => {
+        const el = document.createElement("div");
+        el.className = "kandidat";
+        el.innerHTML = `
+          <h2>${k.nama}</h2>
+          <button onclick="pilih(${i})" id="btn${i}">Pilih</button>
+        `;
+        kandidatList.appendChild(el);
+      });
+    }
+    renderKandidat();
+
+    // Voting
+    let voted = false;
+    window.pilih = function(idx) {
+      if(voted) return;
+      kandidat[idx].votes++;
+      voted = true;
+      // Disable semua tombol
+      kandidat.forEach((_, i) => document.getElementById("btn"+i).disabled = true);
+      showResult();
+    }
+
+    // Menampilkan hasil voting
+    function showResult() {
+      const total = kandidat.reduce((acc, k) => acc + k.votes, 0);
+      let resHtml = "<h3>Hasil Voting Sementara</h3>";
+      kandidat.forEach((k, i) => {
+        const percent = total === 0 ? 0 : Math.round(100*k.votes/total);
+        resHtml += `
+          <div class="votes-label">${k.nama}: ${k.votes} suara (${percent}%)</div>
+          <div class="votes-bar">
+            <div class="bar bar${i}" style="width:${percent*2.5}px"></div>
+          </div>
+        `;
+      });
+      if (total === 0) resHtml += "<div>Belum ada suara masuk.</div>";
+      else resHtml += `<div style="margin-top:12px;">Total suara: ${total}</div>`;
+      document.getElementById("result").innerHTML = resHtml;
+      document.getElementById("result").style.display = "block";
+    }
+  </script>
+</body>
+</html>
